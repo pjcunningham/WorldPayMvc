@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\WorldPayResponseModelBinder.cs" />
     <Compile Include="Enums\CountryCode.cs" />
     <Compile Include="Enums\CurrenyCode.cs" />
     <Compile Include="Enums\TestModeResult.cs" />
@@ -75,6 +76,9 @@
     <Compile Include="Fluent\IWorldPayFluentOptions.cs" />
     <Compile Include="Fluent\IWorldPay.cs" />
     <Compile Include="Fluent\WorldPayFluentOptions.cs" />
+    <Compile Include="Models\WorldPayResponseModel.cs" />
+    <Compile Include="Models\WorldPayPaymentModel.cs" />
+    <Compile Include="Models\WorldPayUrls.cs" />
     <Compile Include="WorldPayHelper.cs" />
     <Compile Include="WorldPay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

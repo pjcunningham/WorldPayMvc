@@ -11,32 +11,25 @@ namespace WorldPayMvc {
             this.parent = parent;
         }
 
-        public IWorldPayFluentOptions PostCode(string value) {
-            return parent.PostCode(value);
+        public IWorldPayFluentOptions Address(string address1, string address2, string address3, string town, string region, string postcode, CountryCode countryCode) {
+            return parent.Address(address1, address2, address3, town, region, postcode, countryCode);
         }
 
-        public IWorldPayFluentOptions Telephone(string value) {
-            return parent.Telephone(value);
+        public IWorldPayFluentOptions Phones(string telephone, string fax = null) {
+            return parent.Phones(telephone, fax);
         }
 
         public IWorldPayFluentOptions Email(string value) {
             return parent.Email(value);
         }
 
-        public IWorldPayFluentOptions Fax(string value) {
-            return parent.Fax(value);
+        public IWorldPayFluentOptions Name(string name, string description = null) {
+            return parent.Name(name, description);
         }
 
-        public IWorldPayFluentOptions Name(string value) {
-            return parent.Name(value);
-        }
 
-        public IWorldPayFluentOptions Description(string value) {
-            return parent.Description(value);
-        }
-
-        public IWorldPayFluentOptions Country(CountryCode value) {
-            return parent.Country(value);
+        public IWorldPayFluentOptions Add(string propertyName, string value) {
+            return parent.Add(propertyName, value);
         }
 
         public IWorldPayFluentOptions TestMode(TestModeResult tmResult = TestModeResult.NONE, int value = 100) {

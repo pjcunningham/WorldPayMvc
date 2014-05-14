@@ -9,5 +9,14 @@ namespace WorldPayMvc {
             if (string.IsNullOrEmpty(value)) return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
+
+        public static DateTime FromWorldPayTransactionTime(this string value) {
+
+            if (string.IsNullOrEmpty(value))
+                return DateTime.MinValue;
+
+            long num = Convert.ToInt64(value);
+            return new DateTime(num * 10000L + 621355968000000000L);
+        }
     }
 }

@@ -1,31 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
+using WorldPayMvc.Models;
 
 namespace WorldPayMvc {
 
         public class WorldPay : IHtmlString, IWorldPay, IWorldPayFluentOptions {
-            private readonly string fInstallationId;
-            private readonly string fCartId;
-            private readonly string fAmount;
-            private readonly CurrenyCode fCurrency;
-            private string fPostCode;
-            private string fTelephone;
-            private string fEmail;
-            private string fFax;
-            private string fName;
-            private string fDescription;
-            private CountryCode? fCountryCode;
-            private int? fTestModeValue;
+            private readonly Dictionary<string, string> fCustomProperties = new Dictionary<string, string>();
+            private readonly WorldPayPaymentModel fWorldPayPaymentModel = new WorldPayPaymentModel();
             private TestModeResult fTestModeResult;
 
             public WorldPay(HtmlHelper html, string installationId, string cartId, string amount, CurrenyCode currency) {
-                 this.fInstallationId = installationId;
-                 this.fCartId = cartId;
-                 this.fAmount = amount;
-                 this.fCurrency = currency;
+                 fWorldPayPaymentModel.instId = installationId;
+                 fWorldPayPaymentModel.cartId = cartId;
+                 fWorldPayPaymentModel.amount = amount;
+                 fWorldPayPaymentModel.currency = currency.ToString();
+            }
+
+            public WorldPay(HtmlHelper html, WorldPayPaymentModel worldPayPaymentModel) {
+                fWorldPayPaymentModel = worldPayPaymentModel;
             }
 
             //Render HTML
@@ -38,44 +34,43 @@ namespace WorldPayMvc {
                 return ToString();
             }
 
-            public IWorldPayFluentOptions PostCode(string value) {
-                this.fPostCode = value.Truncate(12);
+            public IWorldPayFluentOptions Address(string address1, string address2, string address3, string town, string region, string postcode, CountryCode code) {
+                fWorldPayPaymentModel.address1 = address1.Truncate(84);
+                fWorldPayPaymentModel.address2 = address2.Truncate(84);
+                fWorldPayPaymentModel.address3 = address3.Truncate(84);
+                fWorldPayPaymentModel.town = town.Truncate(30);
+                fWorldPayPaymentModel.region = region.Truncate(30);
+                fWorldPayPaymentModel.postcode = postcode.Truncate(12);
+                fWorldPayPaymentModel.country = code.ToString();
                 return new WorldPayFluentOptions(this);
             }
 
             public IWorldPayFluentOptions Email(string value) {
-                this.fEmail = value.Truncate(80);
+                fWorldPayPaymentModel.email = value.Truncate(80);
                 return new WorldPayFluentOptions(this);
             }
 
-            public IWorldPayFluentOptions Description(string value) {
-                this.fDescription = value.Truncate(255);
-                return new WorldPayFluentOptions(this);
-            }
-            
-
-            public IWorldPayFluentOptions Telephone(string value) {
-                this.fTelephone = value.Truncate(30);
+         
+            public IWorldPayFluentOptions Phones(string telephone, string fax = null) {
+                fWorldPayPaymentModel.tel = telephone.Truncate(30);
+                fWorldPayPaymentModel.fax = fax.Truncate(30);
                 return new WorldPayFluentOptions(this);
             }
 
-            public IWorldPayFluentOptions Fax(string value) {
-                this.fFax = value.Truncate(30);
+            public IWorldPayFluentOptions Name(string name, string description = null) {
+                fWorldPayPaymentModel.name = name.Truncate(40);
+                fWorldPayPaymentModel.desc = description.Truncate(255);
                 return new WorldPayFluentOptions(this);
             }
 
-            public IWorldPayFluentOptions Name(string value) {
-                this.fName = value.Truncate(40);
-                return new WorldPayFluentOptions(this);
-            }
 
-            public IWorldPayFluentOptions Country(CountryCode code) {
-                this.fCountryCode = code;
+            public IWorldPayFluentOptions Add(string propertyName, string value) {
+                fCustomProperties.Add(propertyName, value);
                 return new WorldPayFluentOptions(this);
             }
 
             public IWorldPayFluentOptions TestMode(TestModeResult tmResult = TestModeResult.NONE, int value = 100) {
-                this.fTestModeValue = value;
+                fWorldPayPaymentModel.testMode = Convert.ToString(value);
                 this.fTestModeResult = tmResult;
                 return new WorldPayFluentOptions(this);
             }
@@ -85,59 +80,41 @@ namespace WorldPayMvc {
 
                 var html = string.Empty;
 
-                html += CreateHtml("instId", fInstallationId);
-                html += CreateHtml("cartId", fCartId);
-                html += CreateHtml("amount", fAmount);
-                html += CreateHtml("currency", fCurrency.ToString());
+                PropertyInfo[] properties = this.fWorldPayPaymentModel.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-                if (!string.IsNullOrWhiteSpace(fPostCode)) {
-                    html += CreateHtml("postcode", fPostCode);
+                foreach (var property in properties.OrderBy(q => q.Name)) {
+                    var value = property.GetValue(fWorldPayPaymentModel) as string;
+                    if (!string.IsNullOrEmpty(value)) {
+                        html += CreateHtml(property.Name, value);
+                    }
                 }
 
-                if (!string.IsNullOrWhiteSpace(fEmail)) {
-                    html += CreateHtml("email", fEmail);
+                // Custom Properties
+                foreach (var keyvalue in fCustomProperties) {
+                    html += CreateHtml(keyvalue.Key, keyvalue.Value);                    
                 }
+           
 
-                if (!string.IsNullOrWhiteSpace(fTelephone)) {
-                    html += CreateHtml("tel", fTelephone);
-                }
-
-                if (!string.IsNullOrWhiteSpace(fFax)) {
-                    html += CreateHtml("fax", fFax);
-                }
-
-                if (!string.IsNullOrWhiteSpace(fName)) {
-                    html += CreateHtml("name", fName);
-                }
-
-                if (!string.IsNullOrWhiteSpace(fDescription)) {
-                    html += CreateHtml("desc", fDescription);
-                }
-
-                if (fCountryCode.HasValue) {
-                    html += CreateHtml("country", fCountryCode.ToString());
-                }
-
-                if (fTestModeValue.HasValue) {
-                    html += CreateHtml("testMode", fTestModeValue.ToString(), (fTestModeResult != TestModeResult.NONE) ? fTestModeResult.ToString() : null);
-                }
+                //if (fTestModeValue.HasValue) {
+                //    html += CreateHtml("testMode", fTestModeValue.ToString(), (fTestModeResult != TestModeResult.NONE) ? fTestModeResult.ToString() : null);
+                //}
                 
                 return html;
 
             }
 
-            private static string CreateHtml(string id, string value, string name = null) {
-                var tag = CreateTag(id, value, name);
+            private static string CreateHtml(string name, string value, string id = null) {
+                var tag = CreateTag(name, value, id);
                 return tag.ToString(TagRenderMode.SelfClosing);
             }
 
-            private static TagBuilder CreateTag(string id, string value, string name = null) {
+            private static TagBuilder CreateTag(string name, string value, string id = null) {
                 var tagbuilder = new TagBuilder("input");
                 tagbuilder.Attributes.Add("type", "hidden");
-                tagbuilder.Attributes.Add("id", id);
+                tagbuilder.Attributes.Add("name", name);
                 tagbuilder.Attributes.Add("value", value);
-                if (!string.IsNullOrWhiteSpace(name)) {
-                    tagbuilder.Attributes.Add("name", name);
+                if (!string.IsNullOrWhiteSpace(id)) {
+                    tagbuilder.Attributes.Add("id", id);
                 }
                 return tagbuilder;
 
