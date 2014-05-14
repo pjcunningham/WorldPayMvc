@@ -15,8 +15,7 @@ namespace WorldPayMvc.Test {
         /// </summary>
         /// <returns>HtmlHelper</returns>
         public static HtmlHelper Create() {
-            var vc = new ViewContext();
-            vc.HttpContext = new FakeHttpContext();
+            var vc = new ViewContext() { HttpContext = new FakeHttpContext() };
             var html = new HtmlHelper(vc, new FakeViewDataContainer());
             return html;
         }
@@ -25,21 +24,15 @@ namespace WorldPayMvc.Test {
             private readonly Dictionary<object, object> items = new Dictionary<object, object>();
 
             public override IDictionary Items {
-                get {
-                    return items;
-                }
+                get { return items; }
             }
         }
 
         private class FakeViewDataContainer : IViewDataContainer {
             private ViewDataDictionary viewData = new ViewDataDictionary();
             public ViewDataDictionary ViewData {
-                get {
-                    return viewData;
-                }
-                set {
-                    viewData = value;
-                }
+                get { return viewData; }
+                set { viewData = value; }
             }
         }
     }
