@@ -13,7 +13,7 @@ namespace WorldPayMvc {
             private readonly WorldPayPaymentModel fWorldPayPaymentModel = new WorldPayPaymentModel();
             private TestModeResult fTestModeResult;
 
-            public WorldPay(HtmlHelper html, string installationId, string cartId, string amount, CurrenyCode currency) {
+            public WorldPay(HtmlHelper html, string installationId, string cartId, string amount, CurrencyCode currency) {
                  fWorldPayPaymentModel.instId = installationId;
                  fWorldPayPaymentModel.cartId = cartId;
                  fWorldPayPaymentModel.amount = amount;
