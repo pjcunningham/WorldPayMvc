@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace WorldPayMvc {
 
-    public enum CurrenyCode {
+    public enum CurrencyCode {
         ARS,
         AUD,
         BRL,
