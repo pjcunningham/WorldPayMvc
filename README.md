@@ -1,4 +1,4 @@
-WorldPay ASP.NET MVC Helper
+WorldPay ASP.NET Fluent MVC Helper
 =================
 
 ### Given the following model ###
