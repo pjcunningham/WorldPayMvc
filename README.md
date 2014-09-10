@@ -279,7 +279,6 @@ public ActionResult Index(CustomWorldPayResponseViewModel model) {
         Debug.WriteLine("Custom Property {0}; Value : {1}", keyValue.Key, keyValue.Value);
     }
 
-
 #endif        
 
     if (model.transStatus == "Y") {
