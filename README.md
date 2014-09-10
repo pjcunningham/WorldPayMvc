@@ -116,7 +116,7 @@ public ActionResult Index() {
 }
 ```
 
-### Results in the following HTML Output ###
+### Results in the following HTML output ###
 
     <form action="https://secure.worldpay.com/wcc/purchase" method="post">
 	    <input name="address1" type="hidden" value="10 Downing Street" />
@@ -132,5 +132,54 @@ public ActionResult Index() {
 	    <input name="town" type="hidden" value="London" />    
 	    <div class="form-group">
 	        <button class="btn btn-success btn-lg" type="submit">WorldPay Live Checkout</button>
+	    </div>
+	</form>
+
+### Custom Properties ###
+
+```c#
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { @action = WorldPayUrls.Test })) {
+
+    @(Html.WorldPay(@Model.InstallationId, @Model.CartId, @Model.Total.ToString(), @Model.CurrencyCode)
+        .TestMode()
+        .Address(@Model.Address1, @Model.Address2, @Model.Address3, @Model.Town, @Model.County, @Model.PostCode, CountryCode.GB)
+        .Email(@Model.Email)
+        .Name(@Model.Name)
+        .Phones(@Model.Telephone)
+        .Add("accId1", "MERCHANTCODE2")
+        .Add("MC_SHOPPINGCARTID", Guid.NewGuid().ToString())
+        .Add("MC_CUSTOMERREFERENCE", "My Purchase Order")
+        .Add("MC_CUSTOMERID", Guid.NewGuid().ToString())
+        )
+
+    <div class="form-group">
+        <button class="btn btn-success btn-lg" type="submit">WorldPay Test Checkout</button>
+    </div>
+
+}
+```
+
+### Results in the following HTML output ###
+
+	<form action="https://secure-test.worldpay.com/wcc/purchase" method="post">
+	    <input name="address1" type="hidden" value="10 Downing Street" />
+	    <input name="amount" type="hidden" value="100.00" />
+	    <input name="cartId" type="hidden" value="YOUR_CART_ID" />
+	    <input name="country" type="hidden" value="GB" />
+	    <input name="currency" type="hidden" value="GBP" />
+	    <input name="email" type="hidden" value="dave@gov.uk" />
+	    <input name="instId" type="hidden" value="YOUR_INTSALLATION_ID" />
+	    <input name="name" type="hidden" value="Prime Minister" />
+	    <input name="postcode" type="hidden" value="SW1A 2AA" />
+	    <input name="tel" type="hidden" value="020 7925 0918" />
+	    <input name="testMode" type="hidden" value="100" />
+	    <input name="town" type="hidden" value="London" />
+	    <input name="accId1" type="hidden" value="MERCHANTCODE2" />
+	    <input name="MC_SHOPPINGCARTID" type="hidden" value="a2c6b0a9-178a-4743-8fde-66a70e7a138b" />
+	    <input name="MC_CUSTOMERREFERENCE" type="hidden" value="My Purchase Order" />
+	    <input name="MC_CUSTOMERID" type="hidden" value="1d1a5284-f872-402a-b2d8-f605a277a27f" />    
+	    <div class="form-group">
+	        <button class="btn btn-success btn-lg" type="submit">WorldPay Test Checkout</button>
 	    </div>
 	</form>
