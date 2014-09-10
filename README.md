@@ -1,6 +1,8 @@
 WorldPay ASP.NET Fluent MVC Helper
 =================
 
+# Form Submission #
+
 ### Given the following model ###
 
 ```c#
@@ -150,8 +152,7 @@ public ActionResult Index() {
         .Add("accId1", "MERCHANTCODE2")
         .Add("MC_SHOPPINGCARTID", Guid.NewGuid().ToString())
         .Add("MC_CUSTOMERREFERENCE", "My Purchase Order")
-        .Add("MC_CUSTOMERID", Guid.NewGuid().ToString())
-        )
+        .Add("MC_CUSTOMERID", Guid.NewGuid().ToString()))
 
     <div class="form-group">
         <button class="btn btn-success btn-lg" type="submit">WorldPay Test Checkout</button>
@@ -183,3 +184,109 @@ public ActionResult Index() {
 	        <button class="btn btn-success btn-lg" type="submit">WorldPay Test Checkout</button>
 	    </div>
 	</form>
+
+# Callbacks #
+
+### The helper defines the following WorldPayResponseModel class ###
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace WorldPayMvc.Models {
+
+    public class WorldPayResponseModel : WorldPayPaymentModel {
+
+        public WorldPayResponseModel() {
+            CustomProperties = new Dictionary<string, string>();
+        }
+
+        public string delvName { get; set; }
+        public string delvAddress1 { get; set; }
+        public string delvAddress2 { get; set; }
+        public string delvAddress3 { get; set; }
+        public string delvTown { get; set; }
+        public string delvRegion { get; set; }
+        public string delvPostcode { get; set; }
+        public string delvCountry { get; set; }
+        public string delvCountryString { get; set; }
+        public string compName { get; set; }
+        public string transId { get; set; }
+        public string transStatus { get; set; }
+        public string transTime { get; set; }
+        public string authAmount { get; set; }
+        public string authCost { get; set; }
+        public string authCurrency { get; set; }
+        public string authAmountString { get; set; }
+        public string rawAuthMessage { get; set; }
+        public string rawAuthCode { get; set; }
+        public string callbackPW { get; set; }
+        public string cardTyp { get; set; }
+        public string countryMatch { get; set; }
+        public string AVS { get; set; }
+        public string wafMerchMessage { get; set; }
+        public string authentication { get; set; }
+        public string ipAddress { get; set; }
+        public string charenc { get; set; }
+        public string futurePayId { get; set; }
+        public string futurePayStatusChange { get; set; }
+
+        public Dictionary<string, string> CustomProperties { get; private set;}
+
+    }
+}
+```
+
+### So given the following inherited model ###
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using WorldPayMvc.Models;
+
+namespace WorldPayWeb.Models {
+    public class CustomWorldPayResponseViewModel : WorldPayResponseModel {
+        public Guid MC_SHOPPINGCARTID { get; set; }
+        public Guid MC_CUSTOMERID { get; set; }
+        public string MC_CUSTOMERREFERENCE { get; set; }
+    }
+}
+```
+
+### Use the following Action to process the callback ###
+
+```c#
+[HttpPost]
+[ValidateInput(false)]
+public ActionResult Index(CustomWorldPayResponseViewModel model) {
+
+    // Password Check - Password is set in the WorldPay installation settings
+    if (model.callbackPW != "My Secret Password") {
+        return View("Error", model);
+    }
+
+#if(DEBUG)
+
+    PropertyInfo[] properties = model.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+    foreach (var property in properties.OrderBy(q => q.Name)) {
+        Debug.WriteLine("Model Property {0}; Value : {1}", property.Name, property.GetValue(model));                
+    }
+
+    foreach (var keyValue in model.CustomProperties) {
+        Debug.WriteLine("Custom Property {0}; Value : {1}", keyValue.Key, keyValue.Value);
+    }
+
+
+#endif        
+
+    if (model.transStatus == "Y") {
+        return View("Success", GenerateSuccessViewModel(model));
+    } else {
+        return View("Failure", GenerateFailureViewModel(model));
+    }
+
+}
+```

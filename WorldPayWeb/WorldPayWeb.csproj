@@ -119,6 +119,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\CheckoutViewModel.cs" />
+    <Compile Include="Models\CustomWorldPayResponseViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
